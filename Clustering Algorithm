@@ -1,0 +1,88 @@
+import pandas as pd
+df = pd.read_csv("Student_Data.csv")
+df.head()
+
+#No. of Observations
+len(df.index)
+
+df.count(axis=0, numeric_only=False)
+len(df.columns)
+
+df.info()
+
+#No. of missing values
+df.isnull().sum()
+df.describe()
+
+#Replacing all outliers with NA values
+import numpy as np
+df['age'].replace('df.age>=13 & df.age < 20', np.NaN)
+
+#Handling missing values
+df['female'] = np.where((df['gender'] == 'F') & ~(df['gender'].isna()), 1, 0)
+df['no_gender'] = np.where(df['gender'].isna(), 1, 0)
+df['gender'].value_counts(dropna=False)
+df['female'].value_counts(dropna=False)
+df['no_gender'].value_counts(dropna=False)
+
+# Compute the mean age for each gradeyear group
+grouped_means = df.groupby('gradyear')['age'].mean()
+
+# Define a function to impute missing age values with the group mean
+def impute_age(row):
+    if pd.isna(row['age']):
+        return grouped_means[row['gradyear']]
+    else:
+        return row['age']
+# Apply the impute_age function to the age column using the apply method
+df['age'] = df.apply(impute_age, axis=1)
+# Check the number of missing values in the age column after imputation
+print(df['age'].isna().sum())
+
+#Training 
+df1 = df.iloc[:, 4:]
+df1.head()
+
+#Standardise dataset
+objList = df.select_dtypes(include = "object").columns
+print (objList)
+
+from sklearn.preprocessing import LabelEncoder
+L = LabelEncoder()
+for feat in objList:
+    df[feat] = L.fit_transform(df[feat].astype(str))
+print (df.info())
+
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+df1 = scaler.fit_transform(df)
+
+scaler = StandardScaler()
+model = scaler.fit(df)
+scaled_data = model.transform(df)
+ 
+# print scaled data
+print(scaled_data)
+
+scaler = StandardScaler()
+df = scaler.fit_transform(df)
+
+#Applying KMeans Clustering
+from sklearn.cluster import KMeans
+kmeans = KMeans(n_clusters=5, random_state=42)
+kmeans_labels = kmeans.fit_predict(df)
+
+#Applying Agglomerative Clustering
+from sklearn.cluster import AgglomerativeClustering
+agglo = AgglomerativeClustering(n_clusters=5)
+agglo_labels = agglo.fit_predict(df)
+
+#Applying DBSCAN Clsutring 
+from sklearn.cluster import DBSCAN
+dbscan = DBSCAN(eps=1.5, min_samples=10)
+dbscan_labels = dbscan.fit_predict(df)
+
+print("K-means clustering labels:", kmeans_labels)
+print("Agglomerative clustering labels:", agglo_labels)
+print("DBSCAN clustering labels:", dbscan_labels)
+
