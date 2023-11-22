@@ -8,6 +8,7 @@ len(df.index)
 df.count(axis=0, numeric_only=False)
 len(df.columns)
 
+#Information ragarding dataset
 df.info()
 
 #No. of missing values
